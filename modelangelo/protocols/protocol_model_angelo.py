@@ -30,10 +30,13 @@
 Describe your python module here:
 This module will provide the traditional Hello world example
 """
-import enum
+
+# TODO the test:
+# Use 26126 (emdb) and 7tu5 (pdb) + small mask
+
 import os.path
 
-from pwem.objects import Volume, AtomStruct, Sequence
+from pwem.objects import Volume, AtomStruct, Sequence, VolumeMask
 from pyworkflow.protocol import params, LEVEL_ADVANCED
 from pyworkflow.utils import Message
 from pwem.protocols import EMProtocol
@@ -41,8 +44,9 @@ from pyworkflow.protocol import GPU_LIST, USE_GPU
 
 from modelangelo import Plugin
 
-class MAOutput(enum.Enum):
-    structure = AtomStruct
+OUTPUT_NAME="pruned"
+OUTPUT_RAW_NAME="raw"
+
 
 class ProtModelAngelo(EMProtocol):
     """
@@ -50,7 +54,10 @@ class ProtModelAngelo(EMProtocol):
     """
     _label = 'model builder'
 
-    _possibleOutputs = MAOutput
+    _possibleOutputs = {
+        OUTPUT_NAME: AtomStruct,
+        OUTPUT_RAW_NAME: AtomStruct
+    }
 
     # -------------------------- DEFINE param functions ----------------------
     def _defineParams(self, form):
@@ -65,10 +72,16 @@ class ProtModelAngelo(EMProtocol):
                       label='Refined volume', important=True,
                       help='Refined cryo em map.')
 
+        # TODO: Multipointer param fo sequences, save to same fasta file.
         form.addParam('inputSequence', params.PointerParam,
                       pointerClass=Sequence,
                       label='Protein sequence', allowsNull=True, important=True,
                       help='Sequence of model into the refined volume.')
+
+        form.addParam('inputMask', params.PointerParam,
+                      pointerClass=VolumeMask,
+                      label='Volume mask', allowsNull=True, important=True,
+                      help='Mask. Search will be done inside the mask (non zero space).')
 
 
         form.addHidden(USE_GPU, params.BooleanParam, default=True,
@@ -89,6 +102,7 @@ class ProtModelAngelo(EMProtocol):
 
     def predictStep(self):
         sequence = self.inputSequence.get()
+        mask = self.inputMask.get()
 
         mode = "build" if sequence else "build_no_seq"
 
@@ -100,6 +114,10 @@ class ProtModelAngelo(EMProtocol):
             sequence.exportToFile(fasta)
             args.append("-f")
             args.append(fasta)
+
+        if mask:
+            args.append("-m")
+            args.append(mask.getFileName())
 
         # Gpu or cpu
         args.append("-d")
@@ -114,13 +132,18 @@ class ProtModelAngelo(EMProtocol):
         # register how many times the message has been printed
         # Now count will be an accumulated value
 
-        outputCif = self._getExtraPath('see_alpha_output', 'see_alpha_output_ca.cif')
+        self._registerAtomStruct(OUTPUT_NAME, self._getExtraPath('extra.cif'))
 
-        if not os.path.exists(outputCif):
-            raise Exception("Output %s not found." % outputCif)
+        self._registerAtomStruct(OUTPUT_RAW_NAME, self._getExtraPath('extra_raw.cif'))
 
-        output = AtomStruct(filename=outputCif)
-        self._defineOutputs(**{MAOutput.structure.name: output})
+    def _registerAtomStruct(self,name, path):
+
+
+        if not os.path.exists(path):
+            raise Exception("Output %s not found." % path)
+
+        output = AtomStruct(filename=path)
+        self._defineOutputs(**{name: output})
         self._defineSourceRelation(self.inputVolume, output)
 
         if self.inputSequence.get():
