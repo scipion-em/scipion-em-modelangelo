@@ -23,6 +23,7 @@
 # *  e-mail address 'scipion@cnb.csic.es'
 # *
 # **************************************************************************
+import datetime
 import os
 
 import pwem
@@ -30,7 +31,7 @@ import pyworkflow
 from pyworkflow.utils import runJob
 from scipion.install.funcs import VOID_TGZ
 
-__version__ = "3.0.0"
+__version__ = "3.0.1"
 _logo = "icon.jpeg"
 _references = ['mabioarxive']
 
@@ -74,11 +75,13 @@ class Plugin(pwem.Plugin):
 
         def defineModelAngeloInstallation(version):
 
+            installed = "last-pull-%s.txt" % datetime.datetime.now().strftime("%y%h%d-%H%M%S")
+
             # For modelangelo
             modelangelo_commands = []
             modelangelo_commands.append(('git clone https://github.com/3dem/model-angelo.git', 'model-angelo'))
             modelangelo_commands.append((getCondaInstallation(version), 'env-created.txt'))
-            modelangelo_commands.append(('cd model-angelo && git pull', 'endless-pull.txt'))
+            modelangelo_commands.append(('cd model-angelo && git pull && touch ../%s' % installed, installed))
 
             env.addPackage('modelangelo', version=version,
                            commands=modelangelo_commands,
