@@ -1,0 +1,3 @@
+3.0.1
+-----
+  - Installation does not fail but is never complete. So installb modelangelo will git pull all the time.
