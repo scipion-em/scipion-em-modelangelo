@@ -2,7 +2,6 @@
 # *
 # * Authors:  Roberto Marabini (roberto@cnb.csic.es)
 # *
-# * Unidad de  Bioinformatica of Centro Nacional de Biotecnologia , CSIC
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -34,18 +33,20 @@ class ProtModelAngeloViewer(Viewer):
     _label = 'viewer model angelo'
     _targets = [ProtModelAngelo]
 
+
     def visInputVolume(self, f, vol, counter):
         inputVolFileName = ImageHandler.removeFileType(vol.getFileName())
         f.write("open %s\n" % inputVolFileName)
-        if vol.hasOrigin():
-            x, y, z = vol.getOrigin().getShifts()
-        else:
-            x, y, z = vol.getOrigin(force=True).getShifts()
+        # model_angelo does not honor origin in 3D maps
+        # if vol.hasOrigin():
+        #    x, y, z = vol.getOrigin().getShifts()
+        # else:
+        #    x, y, z = vol.getOrigin(force=True).getShifts()
         f.write("volume #%d style surface voxelSize %f\n"
-                "volume #%d origin %0.2f,%0.2f,%0.2f\n"
-                % (counter, vol.getSamplingRate(), counter, x, y, z))
+                "volume #%d origin 0,0,0\n"
+                % (counter, vol.getSamplingRate(), counter))
 
-    def _visualize(self, obj, **args):
+    def visualize(self, obj, **args):
         # create axis file
         models = 1
         _inputVol = self.protocol.inputVolume.get()
@@ -58,7 +59,7 @@ class ProtModelAngeloViewer(Viewer):
                                          bildFileName=bildFileName,
                                          sampling=sampling)
 
-        fnCmd = self.protocol._getExtraPath("chimera_alphafold.cxc")
+        fnCmd = self.protocol._getExtraPath("model_angelo_viewer.cxc")
         f = open(fnCmd, 'w')
         f.write("open %s\n" % bildFileName)
         models +=1
@@ -79,6 +80,10 @@ class ProtModelAngeloViewer(Viewer):
         f.write("color bfactor palette alphafold\n")
         f.write("key red:low orange: yellow: cornflowerblue: blue:high\n")
         # open 3D map
+        models += 1
         self.visInputVolume(f, _inputVol, models)
+        f.write("color #%d #bf404071 models\n" % models)
+        f.write("show cartoons\n")
+        f.write("hide atoms\n")
         f.close()
         Chimera.runProgram(Chimera.getProgram(), fnCmd + "&")
