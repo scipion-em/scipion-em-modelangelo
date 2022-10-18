@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # **************************************************************************
 # *
-# * Authors:     Pablo Conesa (you@yourinstitution.email)
+# * Authors:     Pablo Conesa 
+# *              Roberto Marabini
 # *
-# * your institution
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 # * 02111-1307  USA
 # *
 # *  All comments concerning this program package may be sent to the
-# *  e-mail address 'you@yourinstitution.email'
+# *  e-mail address 'scipion@cnb.csic.es'
 # *
 # **************************************************************************
 
@@ -72,11 +72,10 @@ class ProtModelAngelo(EMProtocol):
                       label='Refined volume', important=True,
                       help='Refined cryo em map.')
 
-        # TODO: Multipointer param fo sequences, save to same fasta file.
-        form.addParam('inputSequence', params.PointerParam,
-                      pointerClass=Sequence,
-                      label='Protein sequence', allowsNull=True, important=True,
-                      help='Sequence of model into the refined volume.')
+        form.addParam('inputSequenceS', params.MultiPointerParam,
+                      pointerClass="Sequence", allowsNull=True, important=True,
+                      label='Protein sequences',
+                      help="Include here one or more sequences to ve modeled")
 
         form.addParam('inputMask', params.PointerParam,
                       pointerClass=VolumeMask,
@@ -100,45 +99,53 @@ class ProtModelAngelo(EMProtocol):
         self._insertFunctionStep(self.predictStep)
         self._insertFunctionStep(self.createOutputStep)
 
+
+    def createInputFastaFile(self, seqs):
+        """Get sequence as string and create the corresponding fasta file"""
+        fastaFileName = self._getExtraPath('sequence.fasta')
+        f = open(fastaFileName, "w")
+
+        for seq in seqs:
+            s = seq.get()
+            id, seqString = (s.getId(), s.getSequence() )
+            f.write(f"> {id}\n")
+            f.write(f"{seqString}\n")
+        f.close()
+        return os.path.abspath(fastaFileName)
+
     def predictStep(self):
-        sequence = self.inputSequence.get()
+        seqs = self.inputSequenceS
         mask = self.inputMask.get()
 
-        mode = "build" if sequence else "build_no_seq"
+        args = []
+        if seqs:
+            fasta = self.createInputFastaFile(seqs)
+            args.extend(["build", "--fasta-path", fasta])
+        else:
+            args.append("build_no_seq")
 
-        args = [mode ,"-v" , self.inputVolume.get().getFileName(), "-o", self._getExtraPath()]
-
-        if sequence:
-            # Save the fasta file
-            fasta = self._getExtraPath('sequence.fasta')
-            sequence.exportToFile(fasta)
-            args.append("-f")
-            args.append(fasta)
+        args.extend(["--volume-path" , self.inputVolume.get().getFileName(), 
+                     "--output-dir", self._getExtraPath()])
 
         if mask:
-            args.append("-m")
-            args.append(mask.getFileName())
+            args.extend(["--mask-path", mask.getFileName()])
 
         # Gpu or cpu
-        args.append("-d")
-        # TODO: Use ore than 1 GPU?
-        args.append(("%s" % self.getGpuList()[0]) if self.useGpu.get() else "cpu")
+        args.extend(["--device", ("%s" % self.getGpuList()[0]) if self.useGpu.get() else "cpu"])
 
         # Call model angelo:
         self.runJob(Plugin.getModelAngeloCmd(), args )
 
 
     def createOutputStep(self):
-        # register how many times the message has been printed
-        # Now count will be an accumulated value
-
+        "Register atomic models, raw and pruned"
+        # check if files exists before registering
+        # I think build_no_seq creates a single output file (no raw file)
+        if os.path.exists(self._getExtraPath('extra_raw.cif')):
+            self._registerAtomStruct(OUTPUT_RAW_NAME, self._getExtraPath('extra_raw.cif'))
         self._registerAtomStruct(OUTPUT_NAME, self._getExtraPath('extra.cif'))
 
-        self._registerAtomStruct(OUTPUT_RAW_NAME, self._getExtraPath('extra_raw.cif'))
-
     def _registerAtomStruct(self,name, path):
-
-
         if not os.path.exists(path):
             raise Exception("Output %s not found." % path)
 
@@ -146,8 +153,10 @@ class ProtModelAngelo(EMProtocol):
         self._defineOutputs(**{name: output})
         self._defineSourceRelation(self.inputVolume, output)
 
-        if self.inputSequence.get():
-            self._defineSourceRelation(self.inputSequence, output)
+        seqs = self.inputSequenceS
+        if seqs:
+            for seq in seqs:
+                self._defineSourceRelation(seq, output)
 
     # --------------------------- INFO functions -----------------------------------
     def _summary(self):
