@@ -75,12 +75,14 @@ class ProtModelAngelo(EMProtocol):
         form.addParam('inputSequenceS', params.MultiPointerParam,
                       pointerClass="Sequence", allowsNull=True, important=True,
                       label='Protein sequences',
-                      help="Include here one or more sequences to ve modeled")
+                      help="Include here one or more sequences to be modeled\n"
+                           "Leave empty is you want to use the model_no_seq option")
 
         form.addParam('inputMask', params.PointerParam,
                       pointerClass=VolumeMask,
                       label='Volume mask', allowsNull=True, important=True,
-                      help='Mask. Search will be done inside the mask (non zero space).')
+                      help='Mask. Search will be done inside the mask.\n'
+                           'That is, voxels in the mask NON zero valued')
 
 
         form.addHidden(USE_GPU, params.BooleanParam, default=True,
@@ -89,8 +91,8 @@ class ProtModelAngelo(EMProtocol):
                                    Select the one you want to use.")
         form.addHidden(GPU_LIST, params.StringParam, default='0',
                        expertLevel=LEVEL_ADVANCED,
-                       label="Choose GPU IDs",
-                       help="Add a list of GPU devices that can be used")
+                       label="Choose GPU ID (single one)",
+                       help="GPU device to be used")
 
 
     # --------------------------- STEPS functions ------------------------------
