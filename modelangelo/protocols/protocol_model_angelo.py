@@ -135,9 +135,17 @@ class ProtModelAngelo(EMProtocol):
         # Gpu or cpu
         args.extend(["--device", ("%s" % self.getGpuList()[0]) if self.useGpu.get() else "cpu"])
 
-        # Call model angelo:
-        self.runJob(Plugin.getModelAngeloCmd(), args )
+        try:
+            # Call model angelo:
+            self.runJob(Plugin.getModelAngeloCmd(), args )
+        except Exception:
 
+            # Modelangelo does not show error in the stdout, nor stderr we should go and read the error information from a log file
+            with open(self._getExtraPath("model_angelo.log")) as log:
+                for line in log.read().splitlines():
+                    self.error(line)
+            self.info("ERROR: %s." % line)
+            raise ChildProcessError("Model angelo has failed: %s. See error log for more details." % line) from None
 
     def createOutputStep(self):
         "Register atomic models, raw and pruned"
