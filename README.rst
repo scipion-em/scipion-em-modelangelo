@@ -2,7 +2,7 @@
 Modelangelo   plugin
 ====================
 
-This plugin provide a wrapper for `Model angelo <https://github.com/3dem/model-angelo>`_ .
+This plugin provide a wrapper for `Model angelo <https://github.com/3dem/model-angelo>`_ which allows *de novo* atomic modelling
 
 
 Installation
@@ -35,4 +35,9 @@ Protocols
 ---------
 
 * Model builder
+
+Tests
+-----
+
+* scipion3 tests modelangelo.tests.tests_model_angelo.TestModelAngel
 
