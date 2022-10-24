@@ -52,8 +52,8 @@ class Plugin(pwem.Plugin):
 
     @classmethod
     def _defineVariables(cls):
-        cls._addVar(MODEL_ANGELO_ACTIVATION_VAR, '')
-        cls._addVar(MODEL_ANGELO_ENV_ACTIVATION_VAR, cls.getActivationCmd(MA_VERSION))
+        cls._defineVar(MODEL_ANGELO_ACTIVATION_VAR, '')
+        cls._defineVar(MODEL_ANGELO_ENV_ACTIVATION_VAR, cls.getActivationCmd(MA_VERSION))
         cls._defineEmVar(TORCH_HOME_VAR, MODELS_PKG_NAME + "-" + MODELS_VERSION)
 
     @classmethod
