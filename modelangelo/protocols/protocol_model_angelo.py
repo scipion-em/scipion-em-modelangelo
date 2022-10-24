@@ -105,7 +105,7 @@ class ProtModelAngelo(EMProtocol):
                 f.write(f"> {s.getId()}\n")
                 f.write(f"{s.getSequence()}\n")
 
-        return os.path.abspath(fastaFileName)
+        return fastaFileName
 
     def predictStep(self):
         seqs = self.inputSequenceS
@@ -173,3 +173,13 @@ class ProtModelAngelo(EMProtocol):
         methods = []
 
         return methods
+
+    def _validate(self):
+        """ Should be implemented in subclasses. See warning. """
+        errors = []
+        gpus = self.getGpuList()
+
+        if len(gpus) > 1:
+            errors.append('Only one GPU can be used.')
+
+        return errors
