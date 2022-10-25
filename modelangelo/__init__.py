@@ -31,7 +31,7 @@ import pyworkflow
 from pyworkflow.utils import runJob
 from scipion.install.funcs import VOID_TGZ
 
-__version__ = "3.0.2"
+__version__ = "3.0.3"
 _logo = "icon.jpeg"
 _references = ['mabioarxive']
 

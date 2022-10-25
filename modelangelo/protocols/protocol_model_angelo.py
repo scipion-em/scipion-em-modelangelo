@@ -71,8 +71,7 @@ class ProtModelAngelo(EMProtocol):
                       pointerClass="Sequence", allowsNull=True, important=True,
                       label='Protein sequences',
                       help="Include here one or more sequences to be modeled\n"
-                           "Leave empty is you want to use the model_no_seq "
-                           "option")
+                           "Leave empty to use the *model_no_seq* option. ")
 
         form.addParam('inputMask', params.PointerParam,
                       pointerClass=VolumeMask,
