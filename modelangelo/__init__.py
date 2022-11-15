@@ -31,32 +31,38 @@ import pyworkflow
 from pyworkflow.utils import runJob
 from scipion.install.funcs import VOID_TGZ
 
-__version__ = "3.0.2"
+__version__ = "3.0.3"
 _logo = "icon.jpeg"
 _references = ['mabioarxive']
 
 # TODO: move to constants
 MA_VERSION = 'git'
+# Use this variable to activate an environment from the Scipion conda
 MODEL_ANGELO_ENV_ACTIVATION_VAR = "MODEL_ANGELO_ENV_ACTIVATION"
+# Use this general activation variable when installed outside Scipion
+MODEL_ANGELO_ACTIVATION_VAR = "MODEL_ANGELO_ACTIVATION"
 
 # models
 MODELS_VERSION = '0.1'
 MODELS_PKG_NAME = 'modelangelomodels'
 TORCH_HOME_VAR = 'TORCH_HOME'
 
+
 class Plugin(pwem.Plugin):
 
     @classmethod
     def _defineVariables(cls):
-        cls._addVar(MODEL_ANGELO_ENV_ACTIVATION_VAR, cls.getActivationCmd(MA_VERSION))
+        cls._defineVar(MODEL_ANGELO_ACTIVATION_VAR, '')
+        cls._defineVar(MODEL_ANGELO_ENV_ACTIVATION_VAR, cls.getActivationCmd(MA_VERSION))
         cls._defineEmVar(TORCH_HOME_VAR, MODELS_PKG_NAME + "-" + MODELS_VERSION)
 
     @classmethod
     def getModelAngeloCmd(cls, *args):
-
-        cmd = cls.getCondaActivationCmd()
-        cmd += cls.getVar(MODEL_ANGELO_ENV_ACTIVATION_VAR) + " && "
-        cmd += "model_angelo"
+        cmd = cls.getVar(MODEL_ANGELO_ACTIVATION_VAR)
+        if not cmd:
+            cmd = cls.getCondaActivationCmd()
+            cmd += cls.getVar(MODEL_ANGELO_ENV_ACTIVATION_VAR)
+        cmd += " && model_angelo"
         return cmd
 
     @classmethod

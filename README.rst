@@ -31,6 +31,31 @@ b) Developer's version
 Modelangelo will be installed automatically with the plugin using a Conda environment.
 
 
+Configuration variables
+.......................
+
+There are some variables related to the model-angelo installation. If you have installed
+model-angelo within Scipion, you may define `MODEL_ANGELO_ENV_ACTIVATION` for specifying
+how to activate the environment. This variable with be used together with the general
+conda activation to generate the final model-angelo command. For example:
+
+.. code-block::
+
+    MODEL_ANGELO_ENV_ACTIVATION = conda activate model_angelo
+
+If this variable is not defined, a default value will be provided that will work if the
+latest version is installed.
+
+If model-angelo is installed already outside Scipion, one could define `MODEL_ANGELO_ACTIVATION`.
+This variable will provide an activation (or load) command that can be anything and the Scipion
+conda activate will not be prepended. For example (loading model-angelo as a module):
+
+.. code-block::
+
+    MODEL_ANGELO_ACTIVATION = module load model-angelo/main
+
+
+
 Protocols
 ---------
 
