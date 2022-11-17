@@ -25,9 +25,6 @@
 # *
 # **************************************************************************
 
-# TODO the test:
-# Use 26126 (emdb) and 7tu5 (pdb) + small mask
-
 import os.path
 
 from pwem.objects import Volume, AtomStruct, Sequence, VolumeMask
@@ -83,10 +80,53 @@ class ProtModelAngelo(EMProtocol):
                        label="Use GPU for execution",
                        help="This protocol has both CPU and GPU implementation."
                             "Select the one you want to use.")
+                            
         form.addHidden(GPU_LIST, params.StringParam, default='0',
                        expertLevel=LEVEL_ADVANCED,
                        label="Choose GPU ID (single one)",
                        help="GPU device to be used")
+                       
+        form.addParam('configFile', params.StringParam,
+                       label="Configuration File",
+                       default="",
+                       expertLevel=LEVEL_ADVANCED,
+                       help="""this option is only for VERY advanced users,\n
+Follows an example of config file
+
+{
+  "standardize_mrc_args":
+    {
+      "target_voxel_size": 1.5,
+      "crop_z": 0,
+      "bfactor_to_apply": 0,
+      "auto_mask": false
+    },
+  "ca_infer_args":
+    {
+      "model_checkpoint": "chkpt.torch",
+      "bfactor": 0,
+      "batch_size": 4,
+      "stride": 16,
+      "dont_mask_input": true,
+      "threshold": 0.05,
+      "save_real_coordinates": false,
+      "save_cryo_em_grid": false,
+      "do_nucleotides": false,
+      "save_backbone_trace": false,
+      "save_ca_grid": false,
+      "crop": 6
+    },
+  "gnn_infer_args":
+    {
+      "num_rounds": 3,
+      "crop_length": 200,
+      "repeat_per_residue": 3,
+      "esm_model": "esm1b_t33_650M_UR50S",
+      "aggressive_pruning": false,
+      "seq_attention_batch_size": 200
+    }
+}
+""")
 
     # --------------------------- STEPS functions ------------------------------
     def _insertAllSteps(self):
@@ -109,6 +149,7 @@ class ProtModelAngelo(EMProtocol):
     def predictStep(self):
         seqs = self.inputSequenceS
         mask = self.inputMask.get()
+        configFile = self.configFile.get()
 
         args = []
         if seqs:
@@ -123,9 +164,13 @@ class ProtModelAngelo(EMProtocol):
         if mask:
             args.extend(["--mask-path", mask.getFileName()])
 
+
         # Gpu or cpu
         args.extend(["--device", ("%s" % self.getGpuList()[0])
                      if self.useGpu else "cpu"])
+
+        if configFile:
+            args.extend(["-c", configFile])
 
         try:
             # Call model angelo:
