@@ -86,7 +86,7 @@ class ProtModelAngelo(EMProtocol):
                        label="Choose GPU ID (single one)",
                        help="GPU device to be used")
                        
-        form.addParam('configFile', params.StringParam,
+        form.addParam('configFile', params.FileParam,
                        label="Configuration File",
                        default="",
                        expertLevel=LEVEL_ADVANCED,
