@@ -32,6 +32,7 @@ from pyworkflow.protocol import params, LEVEL_ADVANCED
 from pyworkflow.utils import Message
 from pwem.protocols import EMProtocol
 from pyworkflow.protocol import GPU_LIST, USE_GPU
+from pwem.convert.headers import Ccp4Header
 
 from modelangelo import Plugin
 
@@ -131,11 +132,28 @@ Follows an example of config file
     # --------------------------- STEPS functions ------------------------------
     def _insertAllSteps(self):
         # Insert processing steps
+        self._insertFunctionStep(self.convertInputStep)
         self._insertFunctionStep(self.predictStep)
         self._insertFunctionStep(self.createOutputStep)
 
+    def convertInputStep(self):
+        """ convert 3D maps to MRC '.mrc' format
+            with extension mrc, map extension is not handled by modelangelo
+        """
+        vol = self.inputVolume.get()
+        inVolName = vol.getFileName()
+        if inVolName.endswith(".mrc"):
+            self.newFn = inVolName
+        else:
+            self.newFn = self._getExtraPath("inputVol.mrc")
+            origin = vol.getOrigin(force=True).getShifts()
+            sampling = vol.getSamplingRate()
+            Ccp4Header.fixFile(inVolName, self.newFn, origin, sampling, Ccp4Header.START)  # ORIGIN
+
+
     def createInputFastaFile(self, seqs):
         """ Get sequence as string and create the corresponding fasta file. """
+
         fastaFileName = self._getExtraPath('sequence.fasta')
 
         with open(fastaFileName, "w") as f:
@@ -158,7 +176,7 @@ Follows an example of config file
         else:
             args.append("build_no_seq")
 
-        args.extend(["--volume-path", self.inputVolume.get().getFileName(),
+        args.extend(["--volume-path", self.newFn,
                      "--output-dir", self._getExtraPath()])
 
         if mask:
