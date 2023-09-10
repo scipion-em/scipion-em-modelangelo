@@ -74,10 +74,8 @@ class Plugin(pwem.Plugin):
     def defineBinaries(cls, env):
 
         def defineModelAngeloInstallation(version):
-
             installed = "last-pull-%s.txt" % dt.now().strftime("%y%h%d-%H%M%S")
 
-            # For modelangelo
             modelangelo_commands = [
                 ('git clone https://github.com/3dem/model-angelo.git', 'model-angelo'),
                 (getCondaInstallation(version), 'env-created.txt'),
@@ -93,14 +91,13 @@ class Plugin(pwem.Plugin):
             installationCmd = cls.getCondaActivationCmd()
             installationCmd += 'conda create -y -n modelangelo-' + version + ' python=3.10 && '
             installationCmd += cls.getActivationCmd(version) + ' && '
-            installationCmd += 'conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia && '
+            installationCmd += 'conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia && '
             installationCmd += 'cd model-angelo && pip install -r requirements.txt && '
             installationCmd += 'pip install -e . && '
             installationCmd += 'touch ../env-created.txt'
 
             return installationCmd
 
-        # Define model angelo installations
         defineModelAngeloInstallation(MA_VERSION)
 
         # Models download
@@ -110,8 +107,8 @@ class Plugin(pwem.Plugin):
         installationCmd += 'python -m model_angelo.utils.setup_weights --bundle-name original && '
         installationCmd += 'python -m model_angelo.utils.setup_weights --bundle-name original_no_seq'
 
-        env.addPackage('modelangelomodels', version="0.1",
-                       commands=[(installationCmd, ["hub/checkpoints/model_angelo/original_no_seq/success.txt",
-                                                    "hub/checkpoints/model_angelo/original/success.txt"])],
+        env.addPackage('modelangelomodels', version=MODELS_VERSION,
+                       commands=[(installationCmd, [f"hub/checkpoints/model_angelo_v{MODELS_VERSION}/original_no_seq/success.txt",
+                                                    f"hub/checkpoints/model_angelo_v{MODELS_VERSION}/original/success.txt"])],
                        tar=VOID_TGZ,
                        default=True)
