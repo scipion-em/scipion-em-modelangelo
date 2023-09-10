@@ -27,7 +27,7 @@
 
 import os.path
 
-from pwem.objects import Volume, AtomStruct, Sequence, VolumeMask
+from pwem.objects import Volume, AtomStruct, VolumeMask
 from pyworkflow.protocol import params, LEVEL_ADVANCED
 from pyworkflow.utils import Message
 from pwem.protocols import EMProtocol
@@ -58,41 +58,40 @@ class ProtModelAngelo(EMProtocol):
         Params:
             form: this is the form to be populated with sections and params.
         """
-        # You need a params to belong to a section:
         form.addSection(label=Message.LABEL_INPUT)
         form.addParam('inputVolume', params.PointerParam,
                       pointerClass=Volume,
                       label='Refined volume', important=True,
-                      help='Refined cryo em map.')
+                      help='Refined cryo-em map.')
 
         form.addParam('inputSequenceS', params.MultiPointerParam,
                       pointerClass="Sequence", allowsNull=True, important=True,
                       label='Protein sequences',
                       help="Include here one or more sequences to be modeled\n"
-                           "Leave empty to use the *model_no_seq* option. ")
+                           "Leave empty to use the *model_no_seq* option.")
 
         form.addParam('inputMask', params.PointerParam,
                       pointerClass=VolumeMask,
                       label='Volume mask', allowsNull=True, important=True,
-                      help='Mask. Search will be done inside the mask.\n'
-                           'That is, voxels in the mask NON zero valued')
+                      help='Search will be done inside the mask.\n'
+                           'That is, voxels inside the mask should be NON zero.')
 
         form.addHidden(USE_GPU, params.BooleanParam, default=True,
                        label="Use GPU for execution",
-                       help="This protocol has both CPU and GPU implementation."
+                       help="This protocol has both CPU and GPU implementation. "
                             "Select the one you want to use.")
-                            
+
         form.addHidden(GPU_LIST, params.StringParam, default='0',
                        expertLevel=LEVEL_ADVANCED,
                        label="Choose GPU ID (single one)",
                        help="GPU device to be used")
-                       
+
         form.addParam('configFile', params.FileParam,
-                       label="Configuration File",
-                       default="",
-                       expertLevel=LEVEL_ADVANCED,
-                       help="""this option is only for VERY advanced users,\n
-Follows an example of config file
+                      label="Configuration File",
+                      default="",
+                      expertLevel=LEVEL_ADVANCED,
+                      help="""This option is only for VERY advanced users.\n
+Below is an example of a config file:
 
 {
   "standardize_mrc_args":
@@ -150,7 +149,6 @@ Follows an example of config file
             sampling = vol.getSamplingRate()
             Ccp4Header.fixFile(inVolName, self.newFn, origin, sampling, Ccp4Header.START)  # ORIGIN
 
-
     def createInputFastaFile(self, seqs):
         """ Get sequence as string and create the corresponding fasta file. """
 
@@ -182,10 +180,8 @@ Follows an example of config file
         if mask:
             args.extend(["--mask-path", mask.getFileName()])
 
-
         # Gpu or cpu
-        args.extend(["--device", ("%s" % self.getGpuList()[0])
-                     if self.useGpu else "cpu"])
+        args.extend(["--device", ("%s" % self.getGpuList()[0]) if self.useGpu else "cpu"])
 
         if configFile:
             args.extend(["-c", configFile])
@@ -204,14 +200,14 @@ Follows an example of config file
                                     "for more details." % line) from None
 
     def createOutputStep(self):
-        "Register atomic models, raw and pruned"
+        """Register atomic models, raw and pruned"""
         # check if files exists before registering
         # I think build_no_seq creates a single output file (no raw file)
         if os.path.exists(self._getExtraPath('extra_raw.cif')):
             self._registerAtomStruct(OUTPUT_RAW_NAME, self._getExtraPath('extra_raw.cif'))
         self._registerAtomStruct(OUTPUT_NAME, self._getExtraPath('extra.cif'))
 
-    def _registerAtomStruct(self,name, path):
+    def _registerAtomStruct(self, name, path):
         if not os.path.exists(path):
             raise Exception("Output %s not found." % path)
 
@@ -225,17 +221,6 @@ Follows an example of config file
                 self._defineSourceRelation(seq, output)
 
     # --------------------------- INFO functions -----------------------------------
-    def _summary(self):
-        """ Summarize what the protocol has done"""
-        summary = []
-
-        return summary
-
-    def _methods(self):
-        methods = []
-
-        return methods
-
     def _validate(self):
         """ Should be implemented in subclasses. See warning. """
         errors = []

@@ -25,14 +25,14 @@
 
 import os
 from pyworkflow.viewer import Viewer
-from ..protocols.protocol_model_angelo import ProtModelAngelo
-from pwem.viewers.viewer_chimera import (Chimera)
+from pwem.viewers.viewer_chimera import Chimera
 from pwem.emlib.image import ImageHandler
+from ..protocols.protocol_model_angelo import ProtModelAngelo
+
 
 class ProtModelAngeloViewer(Viewer):
     _label = 'viewer model angelo'
     _targets = [ProtModelAngelo]
-
 
     def visInputVolume(self, f, vol, counter):
         inputVolFileName = ImageHandler.removeFileType(vol.getFileName())
@@ -62,10 +62,10 @@ class ProtModelAngeloViewer(Viewer):
         fnCmd = self.protocol._getExtraPath("model_angelo_viewer.cxc")
         f = open(fnCmd, 'w')
         f.write("open %s\n" % bildFileName)
-        models +=1
+        models += 1
         f.write("cofr 0,0,0\n")  # set center of coordinates
         # change to workingDir
-        # If we do not use cd and the project name has an space
+        # If we do not use cd and the project name has a space
         # the protocol fails even if we pass absolute paths
         f.write('cd %s\n' % os.getcwd())
 
@@ -75,7 +75,7 @@ class ProtModelAngeloViewer(Viewer):
             fileName = os.path.abspath(eval(f'self.protocol.{output}.getFileName()'))
             if fileName.endswith(".cif") or fileName.endswith(".pdb"):
                 f.write("open %s\n" % fileName)
-                models +=1
+                models += 1
         # set alphafold colormap
         f.write("color bfactor palette alphafold\n")
         f.write("key red:low orange: yellow: cornflowerblue: blue:high\n")

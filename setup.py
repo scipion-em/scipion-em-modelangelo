@@ -37,6 +37,15 @@ setup(
     install_requires=[requirements],
     entry_points={'pyworkflow.plugin': 'modelangelo = modelangelo'},
     package_data={  # Optional
-       'modelangelo': ['icon.jpeg', 'protocols.conf'],
-    }
+       'modelangelo': ['logo.jpeg', 'protocols.conf'],
+    },
+    classifiers=[  # Optional
+        'Development Status :: 4 - Beta',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python :: 3'
+    ],
+    project_urls={  # Optional
+        'Bug Reports': 'https://github.com/scipion-em/scipion-em-modelangelo/issues',
+        'Source': 'https://github.com/scipion-em/scipion-em-modelangelo/',
+    },
 )
