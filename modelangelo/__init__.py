@@ -6,7 +6,7 @@
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
-# * the Free Software Foundation; either version 2 of the License, or
+# * the Free Software Foundation; either version 3 of the License, or
 # * (at your option) any later version.
 # *
 # * This program is distributed in the hope that it will be useful,
@@ -23,29 +23,18 @@
 # *  e-mail address 'scipion@cnb.csic.es'
 # *
 # **************************************************************************
-import datetime
+from datetime import datetime as dt
 import os
 
 import pwem
-import pyworkflow
-from pyworkflow.utils import runJob
+import pyworkflow.utils as pwutils
 from scipion.install.funcs import VOID_TGZ
+
+from .constants import *
 
 __version__ = "3.1"
 _logo = "logo.jpeg"
 _references = ['jamali2023']
-
-# TODO: move to constants
-MA_VERSION = 'git'
-# Use this variable to activate an environment from the Scipion conda
-MODEL_ANGELO_ENV_ACTIVATION_VAR = "MODEL_ANGELO_ENV_ACTIVATION"
-# Use this general activation variable when installed outside Scipion
-MODEL_ANGELO_ACTIVATION_VAR = "MODEL_ANGELO_ACTIVATION"
-
-# models
-MODELS_VERSION = '0.1'
-MODELS_PKG_NAME = 'modelangelomodels'
-TORCH_HOME_VAR = 'TORCH_HOME'
 
 
 class Plugin(pwem.Plugin):
@@ -55,6 +44,7 @@ class Plugin(pwem.Plugin):
         cls._defineVar(MODEL_ANGELO_ACTIVATION_VAR, '')
         cls._defineVar(MODEL_ANGELO_ENV_ACTIVATION_VAR, cls.getActivationCmd(MA_VERSION))
         cls._defineEmVar(TORCH_HOME_VAR, MODELS_PKG_NAME + "-" + MODELS_VERSION)
+        cls._defineVar(MODEL_ANGELO_CUDA_LIB, pwem.Config.CUDA_LIB)
 
     @classmethod
     def getModelAngeloCmd(cls):
@@ -67,10 +57,13 @@ class Plugin(pwem.Plugin):
 
     @classmethod
     def getEnviron(cls):
-        environ = pyworkflow.utils.Environ(os.environ)
+        environ = pwutils.Environ(os.environ)
         torch_home = cls.getVar(TORCH_HOME_VAR)
-        # For GPU, we need to add to LD_LIBRARY_PATH the path to Cuda/lib
         environ.set(TORCH_HOME_VAR, torch_home)
+
+        cudaLib = cls.getVar(MODEL_ANGELO_CUDA_LIB, pwem.Config.CUDA_LIB)
+        environ.addLibrary(cudaLib)
+
         return environ
 
     @classmethod
@@ -82,13 +75,14 @@ class Plugin(pwem.Plugin):
 
         def defineModelAngeloInstallation(version):
 
-            installed = "last-pull-%s.txt" % datetime.datetime.now().strftime("%y%h%d-%H%M%S")
+            installed = "last-pull-%s.txt" % dt.now().strftime("%y%h%d-%H%M%S")
 
             # For modelangelo
-            modelangelo_commands = []
-            modelangelo_commands.append(('git clone https://github.com/3dem/model-angelo.git', 'model-angelo'))
-            modelangelo_commands.append((getCondaInstallation(version), 'env-created.txt'))
-            modelangelo_commands.append(('cd model-angelo && git pull && touch ../%s' % installed, installed))
+            modelangelo_commands = [
+                ('git clone https://github.com/3dem/model-angelo.git', 'model-angelo'),
+                (getCondaInstallation(version), 'env-created.txt'),
+                ('cd model-angelo && git pull && touch ../%s' % installed, installed)
+            ]
 
             env.addPackage('modelangelo', version=version,
                            commands=modelangelo_commands,
@@ -97,11 +91,11 @@ class Plugin(pwem.Plugin):
 
         def getCondaInstallation(version):
             installationCmd = cls.getCondaActivationCmd()
-            installationCmd += 'conda create -y -n modelangelo-' + version + ' python=3.9 && '
+            installationCmd += 'conda create -y -n modelangelo-' + version + ' python=3.10 && '
             installationCmd += cls.getActivationCmd(version) + ' && '
-            installationCmd += 'cd model-angelo && python -m pip install -r requirements.txt && '
-            installationCmd += 'conda install -y pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch && '
-            installationCmd += 'python -m pip install -e . && '
+            installationCmd += 'conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia && '
+            installationCmd += 'cd model-angelo && pip install -r requirements.txt && '
+            installationCmd += 'pip install -e . && '
             installationCmd += 'touch ../env-created.txt'
 
             return installationCmd

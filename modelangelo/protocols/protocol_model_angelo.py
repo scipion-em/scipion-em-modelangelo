@@ -7,7 +7,7 @@
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
-# * the Free Software Foundation; either version 2 of the License, or
+# * the Free Software Foundation; either version 3 of the License, or
 # * (at your option) any later version.
 # *
 # * This program is distributed in the hope that it will be useful,
@@ -128,13 +128,14 @@ Below is an example of a config file:
 }
 """)
 
-    # --------------------------- STEPS functions ------------------------------
+    # -------------------------- INSERT steps functions -----------------------
     def _insertAllSteps(self):
         # Insert processing steps
         self._insertFunctionStep(self.convertInputStep)
         self._insertFunctionStep(self.predictStep)
         self._insertFunctionStep(self.createOutputStep)
 
+    # --------------------------- STEPS functions ------------------------------
     def convertInputStep(self):
         """ convert 3D maps to MRC '.mrc' format
             with extension mrc, map extension is not handled by modelangelo
@@ -148,19 +149,6 @@ Below is an example of a config file:
             origin = vol.getOrigin(force=True).getShifts()
             sampling = vol.getSamplingRate()
             Ccp4Header.fixFile(inVolName, self.newFn, origin, sampling, Ccp4Header.START)  # ORIGIN
-
-    def createInputFastaFile(self, seqs):
-        """ Get sequence as string and create the corresponding fasta file. """
-
-        fastaFileName = self._getExtraPath('sequence.fasta')
-
-        with open(fastaFileName, "w") as f:
-            for seq in seqs:
-                s = seq.get()
-                f.write(f"> {s.getId()}\n")
-                f.write(f"{s.getSequence()}\n")
-
-        return fastaFileName
 
     def predictStep(self):
         seqs = self.inputSequenceS
@@ -207,9 +195,33 @@ Below is an example of a config file:
             self._registerAtomStruct(OUTPUT_RAW_NAME, self._getExtraPath('extra_raw.cif'))
         self._registerAtomStruct(OUTPUT_NAME, self._getExtraPath('extra.cif'))
 
+    # --------------------------- INFO functions -----------------------------------
+    def _validate(self):
+        errors = []
+        gpus = self.getGpuList()
+
+        if len(gpus) > 1:
+            errors.append('Only one GPU can be used.')
+
+        return errors
+
+    # -------------------------- UTILS functions ------------------------------
+    def createInputFastaFile(self, seqs):
+        """ Get sequence as string and create the corresponding fasta file. """
+
+        fastaFileName = self._getExtraPath('sequence.fasta')
+
+        with open(fastaFileName, "w") as f:
+            for seq in seqs:
+                s = seq.get()
+                f.write(f"> {s.getId()}\n")
+                f.write(f"{s.getSequence()}\n")
+
+        return fastaFileName
+
     def _registerAtomStruct(self, name, path):
         if not os.path.exists(path):
-            raise Exception("Output %s not found." % path)
+            raise FileNotFoundError("Output %s not found." % path)
 
         output = AtomStruct(filename=path)
         self._defineOutputs(**{name: output})
@@ -219,14 +231,3 @@ Below is an example of a config file:
         if seqs:
             for seq in seqs:
                 self._defineSourceRelation(seq, output)
-
-    # --------------------------- INFO functions -----------------------------------
-    def _validate(self):
-        """ Should be implemented in subclasses. See warning. """
-        errors = []
-        gpus = self.getGpuList()
-
-        if len(gpus) > 1:
-            errors.append('Only one GPU can be used.')
-
-        return errors
