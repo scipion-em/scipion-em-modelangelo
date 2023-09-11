@@ -61,7 +61,7 @@ class Plugin(pwem.Plugin):
         torch_home = cls.getVar(TORCH_HOME_VAR)
         environ.set(TORCH_HOME_VAR, torch_home)
 
-        cudaLib = cls.getVar(MODEL_ANGELO_CUDA_LIB, pwem.Config.CUDA_LIB)
+        cudaLib = cls.getVar(MODEL_ANGELO_CUDA_LIB)
         environ.addLibrary(cudaLib)
 
         return environ
