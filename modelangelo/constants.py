@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 # **************************************************************************
 # *
-# * Authors:     Roberto Marabini
+# * Authors:     Grigory Sharov (gsharov@mrc-lmb.cam.ac.uk)
 # *
+# * MRC Laboratory of Molecular Biology (MRC-LMB)
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -24,4 +24,14 @@
 # *
 # **************************************************************************
 
-from .viewer import ProtModelAngeloViewer
+MA_VERSION = 'git'
+# Use this variable to activate an environment from the Scipion conda
+MODEL_ANGELO_ENV_ACTIVATION_VAR = "MODEL_ANGELO_ENV_ACTIVATION"
+# Use this general activation variable when installed outside Scipion
+MODEL_ANGELO_ACTIVATION_VAR = "MODEL_ANGELO_ACTIVATION"
+MODEL_ANGELO_CUDA_LIB = "MODEL_ANGELO_CUDA_LIB"
+
+# models
+MODELS_VERSION = '1.0'
+MODELS_PKG_NAME = 'modelangelomodels'
+TORCH_HOME_VAR = 'TORCH_HOME'
