@@ -24,5 +24,4 @@
 # *
 # **************************************************************************
 
-from .viewer import (ProtModelAngeloViewer,
-                     )
+from .viewer import ProtModelAngeloViewer

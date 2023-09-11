@@ -31,9 +31,9 @@ import pyworkflow
 from pyworkflow.utils import runJob
 from scipion.install.funcs import VOID_TGZ
 
-__version__ = "3.0.4"
-_logo = "icon.jpeg"
-_references = ['mabioarxive']
+__version__ = "3.1"
+_logo = "logo.jpeg"
+_references = ['jamali2023']
 
 # TODO: move to constants
 MA_VERSION = 'git'
@@ -57,7 +57,7 @@ class Plugin(pwem.Plugin):
         cls._defineEmVar(TORCH_HOME_VAR, MODELS_PKG_NAME + "-" + MODELS_VERSION)
 
     @classmethod
-    def getModelAngeloCmd(cls, *args):
+    def getModelAngeloCmd(cls):
         cmd = cls.getVar(MODEL_ANGELO_ACTIVATION_VAR)
         if not cmd:
             cmd = cls.getCondaActivationCmd()
@@ -72,6 +72,7 @@ class Plugin(pwem.Plugin):
         # For GPU, we need to add to LD_LIBRARY_PATH the path to Cuda/lib
         environ.set(TORCH_HOME_VAR, torch_home)
         return environ
+
     @classmethod
     def getActivationCmd(cls, version):
         return'conda activate modelangelo-' + version
@@ -111,16 +112,12 @@ class Plugin(pwem.Plugin):
         # Models download
         installationCmd = ""
         installationCmd += 'export TORCH_HOME=$PWD && '
-        installationCmd += cls.getCondaActivationCmd() + " " +  cls.getActivationCmd(MA_VERSION) + ' && '
+        installationCmd += cls.getCondaActivationCmd() + " " + cls.getActivationCmd(MA_VERSION) + ' && '
         installationCmd += 'python -m model_angelo.utils.setup_weights --bundle-name original && '
         installationCmd += 'python -m model_angelo.utils.setup_weights --bundle-name original_no_seq'
 
-
         env.addPackage('modelangelomodels', version="0.1",
-                       commands=[(installationCmd,["hub/checkpoints/model_angelo/original_no_seq/success.txt",
-                                                   "hub/checkpoints/model_angelo/original/success.txt"])],
+                       commands=[(installationCmd, ["hub/checkpoints/model_angelo/original_no_seq/success.txt",
+                                                    "hub/checkpoints/model_angelo/original/success.txt"])],
                        tar=VOID_TGZ,
                        default=True)
-
-
-

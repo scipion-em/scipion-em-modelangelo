@@ -21,14 +21,12 @@
 # *  e-mail address 'scipion@cnb.csic.es'
 # ***************************************************************************/
 
-# protocol to test the operation on PDB files
 from os.path import exists
-from collections import Counter
 
-#from ..protocols import ProtModelAngelo
 from pyworkflow.tests import BaseTest, setupTestProject
 import pwem.protocols as emprot
 from ..protocols import ProtModelAngelo
+
 
 class TestModelAngelo(BaseTest):
     @classmethod
@@ -66,7 +64,7 @@ class TestModelAngelo(BaseTest):
                 'inputSequenceS': listSeq,
                 'useGpu': True,
                 'gpuList': "0",
-        }
+                }
         prot2 = self.newProtocol(ProtModelAngelo, **args)
         prot2.setObjLabel('model angelo')
         self.launchProtocol(prot2)
@@ -91,7 +89,7 @@ class TestModelAngelo(BaseTest):
         args = {'inputVolume': vol,
                 'useGpu': True,
                 'gpuList': "0",
-        }
+                }
         prot2 = self.newProtocol(ProtModelAngelo, **args)
         prot2.setObjLabel('model angelo\n No sequence')
         self.launchProtocol(prot2)
