@@ -54,7 +54,7 @@ conda activate will not be prepended. For example (loading model-angelo as a mod
 
     MODEL_ANGELO_ACTIVATION = module load model-angelo/main
 
-
+If you need to use CUDA different from the one used during Scipion installation (defined by *CUDA_LIB*), you can add *MODEL_ANGELO_CUDA_LIB* variable to the config file.
 
 Protocols
 ---------

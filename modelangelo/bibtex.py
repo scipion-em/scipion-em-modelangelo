@@ -7,7 +7,7 @@
 # *
 # * This program is free software; you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
-# * the Free Software Foundation; either version 2 of the License, or
+# * the Free Software Foundation; either version 3 of the License, or
 # * (at your option) any later version.
 # *
 # * This program is distributed in the hope that it will be useful,
@@ -26,15 +26,14 @@
 # **************************************************************************
 
 """
-@article{mabioarxive,
-  doi = "https://doi.org/10.48550/arxiv.2210.00006",
-  url = "https://arxiv.org/abs/2210.00006",
-  author = "Jamali, Kiarash and Kimanius, Dari and Scheres, Sjors",
-  keywords = "Quantitative Methods (q-bio.QM), Artificial Intelligence (cs.AI), Machine Learning (cs.LG), Biomolecules (q-bio.BM), FOS: Biological sciences, FOS: Biological sciences, FOS: Computer and information sciences, FOS: Computer and information sciences",
-  title = "ModelAngelo: Automated Model Building in Cryo-EM Maps",
-  publisher = "arXiv",
-  year = "2022",
-  copyright = "Creative Commons Attribution 4.0 International"
+@article{jamali2023,
+author = {Kiarash Jamali and Lukas Kall and Rui Zhang and Alan Brown and Dari Kimanius and Sjors Scheres},
+title = {Automated model building and protein identification in cryo-EM maps},
+year = {2023},
+doi = {https://dx.doi.org/10.1101/2023.05.16.541002},
+publisher = {Cold Spring Harbor Laboratory},
+URL = {https://www.biorxiv.org/content/early/2023/05/16/2023.05.16.541002},
+journal = {bioRxiv}
 }
 
 """

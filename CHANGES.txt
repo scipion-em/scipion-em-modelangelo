@@ -1,3 +1,5 @@
-3.0.1
------
-  - Installation does not fail but is never complete. So installb modelangelo will git pull all the time.
+3.1:
+ - update installation
+ - create constants
+ - add MODEL_ANGELO_CUDA_LIB
+3.0.1: Installation does not fail but is never complete. So installb modelangelo will git pull all the time.
