@@ -32,7 +32,7 @@ from scipion.install.funcs import VOID_TGZ
 
 from .constants import *
 
-__version__ = "3.1"
+__version__ = "3.1.1"
 _logo = "logo.jpeg"
 _references = ['jamali2023']
 
