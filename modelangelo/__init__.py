@@ -91,7 +91,7 @@ class Plugin(pwem.Plugin):
             installationCmd = cls.getCondaActivationCmd()
             installationCmd += 'conda create -y -n modelangelo-' + version + ' python=3.10 && '
             installationCmd += cls.getActivationCmd(version) + ' && '
-            installationCmd += 'conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia && '
+            installationCmd += 'conda install -y pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia && '
             installationCmd += 'cd model-angelo && '
             installationCmd += 'pip install -e . && '
             installationCmd += 'touch ../env-created.txt'
