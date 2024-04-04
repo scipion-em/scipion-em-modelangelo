@@ -68,7 +68,7 @@ class Plugin(pwem.Plugin):
 
     @classmethod
     def getActivationCmd(cls, version):
-        return'conda activate modelangelo-' + version
+        return 'conda activate modelangelo-' + version
 
     @classmethod
     def defineBinaries(cls, env):
