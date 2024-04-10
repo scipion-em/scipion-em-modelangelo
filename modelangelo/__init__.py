@@ -32,7 +32,7 @@ from scipion.install.funcs import VOID_TGZ
 
 from .constants import *
 
-__version__ = "3.1"
+__version__ = "3.1.1"
 _logo = "logo.jpeg"
 _references = ['jamali2023']
 
@@ -68,7 +68,7 @@ class Plugin(pwem.Plugin):
 
     @classmethod
     def getActivationCmd(cls, version):
-        return'conda activate modelangelo-' + version
+        return 'conda activate modelangelo-' + version
 
     @classmethod
     def defineBinaries(cls, env):
@@ -91,8 +91,8 @@ class Plugin(pwem.Plugin):
             installationCmd = cls.getCondaActivationCmd()
             installationCmd += 'conda create -y -n modelangelo-' + version + ' python=3.10 && '
             installationCmd += cls.getActivationCmd(version) + ' && '
-            installationCmd += 'conda install -y pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia && '
-            installationCmd += 'cd model-angelo && pip install -r requirements.txt && '
+            installationCmd += 'conda install -y pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia && '
+            installationCmd += 'cd model-angelo && '
             installationCmd += 'pip install -e . && '
             installationCmd += 'touch ../env-created.txt'
 
