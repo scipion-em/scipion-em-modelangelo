@@ -26,14 +26,19 @@
 # **************************************************************************
 
 """
-@article{jamali2023,
-author = {Kiarash Jamali and Lukas Kall and Rui Zhang and Alan Brown and Dari Kimanius and Sjors Scheres},
-title = {Automated model building and protein identification in cryo-EM maps},
-year = {2023},
-doi = {https://dx.doi.org/10.1101/2023.05.16.541002},
-publisher = {Cold Spring Harbor Laboratory},
-URL = {https://www.biorxiv.org/content/early/2023/05/16/2023.05.16.541002},
-journal = {bioRxiv}
+@article{Jamali2024,
+  title = {Automated model building and protein identification in cryo-EM maps},
+  volume = {628},
+  ISSN = {1476-4687},
+  url = {http://dx.doi.org/10.1038/s41586-024-07215-4},
+  DOI = {10.1038/s41586-024-07215-4},
+  number = {8007},
+  journal = {Nature},
+  publisher = {Springer Science and Business Media LLC},
+  author = {Jamali,  Kiarash and K\"{a}ll,  Lukas and Zhang,  Rui and Brown,  Alan and Kimanius,  Dari and Scheres,  Sjors H. W.},
+  year = {2024},
+  month = feb,
+  pages = {450–457}
 }
 
 """
